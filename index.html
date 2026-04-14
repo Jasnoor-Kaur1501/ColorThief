@@ -757,4 +757,40 @@ function copyAllHex() {
   const hexes = extractedColors.map(c => toHex(c[0],c[1],c[2])).join(", ");
   navigator.clipboard.writeText(hexes).then(() => showToast("All hex codes copied"));
 }
+function copyCSS() {
+  const vars = extractedColors.map((c, i) =>
+    `  --color-${i+1}: ${toHex(c[0],c[1],c[2])};`
+  ).join("\n");
+  const css = `:root {\n${vars}\n}`;
+  navigator.clipboard.writeText(css).then(() => showToast("CSS variables copied"));
+}
+
+function resetImage() {
+  document.getElementById("imagePreview").style.display = "none";
+  document.getElementById("dropContent").style.display = "";
+  dropZone.classList.remove("has-image");
+  document.getElementById("changeBtn").style.display = "none";
+  document.getElementById("imageStrip").innerHTML = "";
+  document.getElementById("paletteList").classList.remove("visible");
+  document.getElementById("paletteFooter").classList.remove("visible");
+  document.getElementById("paletteEmpty").style.display = "";
+  document.getElementById("colorCount").textContent = "";
+  document.getElementById("fileInput").value = "";
+  extractedColors = [];
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+// Fade in animation for palette items
+const style = document.createElement("style");
+style.textContent = `@keyframes fadeIn { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:translateX(0); } }`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
 
