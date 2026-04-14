@@ -502,4 +502,295 @@ input[type="file"] { display: none; }
 <div class="toast" id="toast"></div>
 
 <script>
+// ── COLOR NAMING ──
+// Named by proximity to a curated list of ~80 color anchors
+const COLOR_NAMES = [
+  { name: "Midnight Black", r:10, g:10, b:10 },
+  { name: "Charcoal", r:54, g:54, b:54 },
+  { name: "Graphite", r:88, g:88, b:88 },
+  { name: "Slate Gray", r:120, g:120, b:130 },
+  { name: "Silver", r:180, g:180, b:180 },
+  { name: "Platinum", r:220, g:220, b:220 },
+  { name: "Ghost White", r:245, g:245, b:250 },
+  { name: "Pure White", r:255, g:255, b:255 },
+  { name: "Ivory", r:255, g:250, b:240 },
+  { name: "Cream", r:255, g:245, b:220 },
+  { name: "Linen", r:240, g:228, b:210 },
+  { name: "Warm Sand", r:210, g:190, b:160 },
+  { name: "Tan", r:185, g:155, b:115 },
+  { name: "Camel", r:190, g:150, b:90 },
+  { name: "Khaki", r:195, g:180, b:120 },
+  { name: "Olive", r:130, g:130, b:50 },
+  { name: "Moss Green", r:100, g:130, b:70 },
+  { name: "Forest Green", r:40, g:100, b:50 },
+  { name: "Emerald", r:0, g:160, b:80 },
+  { name: "Mint", r:145, g:220, b:175 },
+  { name: "Sage", r:155, g:185, b:150 },
+  { name: "Seafoam", r:130, g:210, b:190 },
+  { name: "Teal", r:0, g:145, b:140 },
+  { name: "Dark Teal", r:0, g:100, b:100 },
+  { name: "Cyan", r:0, g:210, b:230 },
+  { name: "Sky Blue", r:110, g:185, b:240 },
+  { name: "Cornflower", r:100, g:140, b:220 },
+  { name: "Cobalt", r:30, g:80, b:200 },
+  { name: "Royal Blue", r:50, g:60, b:190 },
+  { name: "Navy", r:20, g:30, b:110 },
+  { name: "Midnight Blue", r:15, g:20, b:80 },
+  { name: "Indigo", r:70, g:50, b:180 },
+  { name: "Violet", r:130, g:60, b:200 },
+  { name: "Purple", r:160, g:50, b:190 },
+  { name: "Plum", r:130, g:40, b:120 },
+  { name: "Mauve", r:190, g:130, b:180 },
+  { name: "Lavender", r:200, g:180, b:240 },
+  { name: "Lilac", r:210, g:180, b:225 },
+  { name: "Orchid", r:210, g:115, b:210 },
+  { name: "Hot Pink", r:255, g:80, b:160 },
+  { name: "Rose", r:240, g:100, b:130 },
+  { name: "Blush", r:250, g:180, b:190 },
+  { name: "Dusty Rose", r:210, g:150, b:155 },
+  { name: "Salmon", r:245, g:140, b:115 },
+  { name: "Coral", r:255, g:110, b:80 },
+  { name: "Tomato", r:230, g:60, b:50 },
+  { name: "Crimson", r:190, g:20, b:40 },
+  { name: "Burgundy", r:130, g:20, b:40 },
+  { name: "Maroon", r:110, g:20, b:30 },
+  { name: "Rust", r:190, g:80, b:30 },
+  { name: "Burnt Orange", r:210, g:100, b:30 },
+  { name: "Orange", r:255, g:140, b:0 },
+  { name: "Amber", r:255, g:180, b:0 },
+  { name: "Gold", r:230, g:180, b:20 },
+  { name: "Yellow", r:255, g:230, b:0 },
+  { name: "Lemon", r:255, g:245, b:100 },
+  { name: "Chartreuse", r:180, g:230, b:50 },
+  { name: "Lime", r:130, g:220, b:30 },
+  { name: "Warm Brown", r:140, g:90, b:50 },
+  { name: "Chocolate", r:100, g:55, b:25 },
+  { name: "Espresso", r:65, g:35, b:20 },
+  { name: "Sienna", r:165, g:85, b:50 },
+  { name: "Terracotta", r:200, g:105, b:75 },
+  { name: "Clay", r:190, g:130, b:100 },
+  { name: "Peach", r:255, g:200, b:160 },
+  { name: "Apricot", r:250, g:175, b:130 },
+  { name: "Dusty Blue", r:120, g:155, b:185 },
+  { name: "Steel Blue", r:80, g:120, b:165 },
+  { name: "Powder Blue", r:180, g:210, b:235 },
+  { name: "Ice Blue", r:210, g:235, b:250 },
+  { name: "Warm Gray", r:160, g:155, b:148 },
+  { name: "Cool Gray", r:148, g:150, b:160 },
+  { name: "Taupe", r:165, g:148, b:130 },
+  { name: "Mushroom", r:190, g:175, b:160 },
+];
 
+function colorDist(r1,g1,b1,r2,g2,b2) {
+  return Math.sqrt((r1-r2)**2 + (g1-g2)**2 + (b1-b2)**2);
+}
+
+function nameColor(r,g,b) {
+  let best = COLOR_NAMES[0], bestDist = Infinity;
+  for (const c of COLOR_NAMES) {
+    const d = colorDist(r,g,b,c.r,c.g,c.b);
+    if (d < bestDist) { bestDist = d; best = c; }
+  }
+  return best.name;
+}
+
+function toHex(r,g,b) {
+  return "#" + [r,g,b].map(v => v.toString(16).padStart(2,"0")).join("").toUpperCase();
+}
+
+// ── MEDIAN CUT COLOR EXTRACTION ──
+function extractColors(imageData, count = 8) {
+  const pixels = [];
+  const data = imageData.data;
+  const step = Math.max(1, Math.floor(data.length / 4 / 4000));
+  for (let i = 0; i < data.length; i += 4 * step) {
+    const r = data[i], g = data[i+1], b = data[i+2], a = data[i+3];
+    if (a > 128) pixels.push([r, g, b]);
+  }
+
+  function quantize(pixels, depth) {
+    if (depth === 0 || pixels.length < 10) {
+      const r = Math.round(pixels.reduce((s,p)=>s+p[0],0)/pixels.length);
+      const g = Math.round(pixels.reduce((s,p)=>s+p[1],0)/pixels.length);
+      const b = Math.round(pixels.reduce((s,p)=>s+p[2],0)/pixels.length);
+      return [[r,g,b]];
+    }
+    const rRange = Math.max(...pixels.map(p=>p[0])) - Math.min(...pixels.map(p=>p[0]));
+    const gRange = Math.max(...pixels.map(p=>p[1])) - Math.min(...pixels.map(p=>p[1]));
+    const bRange = Math.max(...pixels.map(p=>p[2])) - Math.min(...pixels.map(p=>p[2]));
+    const channel = rRange >= gRange && rRange >= bRange ? 0 : gRange >= bRange ? 1 : 2;
+    pixels.sort((a,b) => a[channel] - b[channel]);
+    const mid = Math.floor(pixels.length / 2);
+    return [
+      ...quantize(pixels.slice(0, mid), depth - 1),
+      ...quantize(pixels.slice(mid), depth - 1)
+    ];
+  }
+
+  const depth = Math.ceil(Math.log2(count));
+  let colors = quantize(pixels, depth);
+
+  // Deduplicate similar colors
+  const unique = [];
+  for (const c of colors) {
+    const tooClose = unique.some(u => colorDist(c[0],c[1],c[2],u[0],u[1],u[2]) < 28);
+    if (!tooClose) unique.push(c);
+  }
+
+  return unique.slice(0, count);
+}
+
+// ── STATE ──
+let extractedColors = [];
+
+// ── DROP ZONE ──
+const dropZone = document.getElementById("dropZone");
+
+dropZone.addEventListener("dragover", e => {
+  e.preventDefault();
+  dropZone.classList.add("dragover");
+});
+
+dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+
+dropZone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropZone.classList.remove("dragover");
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith("image/")) processFile(file);
+});
+
+document.getElementById("fileInput").addEventListener("change", e => {
+  if (e.target.files[0]) processFile(e.target.files[0]);
+});
+
+function processFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => loadImage(e.target.result);
+  reader.readAsDataURL(file);
+}
+
+function loadImage(src) {
+  document.getElementById("processing").classList.add("visible");
+
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    const MAX = 300;
+    const scale = Math.min(1, MAX / Math.max(img.width, img.height));
+    canvas.width = Math.round(img.width * scale);
+    canvas.height = Math.round(img.height * scale);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+    setTimeout(() => {
+      const colors = extractColors(imageData, 8);
+      extractedColors = colors;
+      renderPalette(colors);
+      showImage(src, colors);
+      document.getElementById("processing").classList.remove("visible");
+    }, 300);
+  };
+  img.src = src;
+}
+
+function showImage(src, colors) {
+  const preview = document.getElementById("imagePreview");
+  const dropContent = document.getElementById("dropContent");
+  preview.src = src;
+  preview.style.display = "block";
+  dropContent.style.display = "none";
+  dropZone.classList.add("has-image");
+  document.getElementById("changeBtn").style.display = "block";
+
+  // Color strip
+  const strip = document.getElementById("imageStrip");
+  strip.innerHTML = colors.map(c =>
+    `<div class="strip-seg" style="background:${toHex(c[0],c[1],c[2])}"></div>`
+  ).join("");
+}
+
+function renderPalette(colors) {
+  const list = document.getElementById("paletteList");
+  const footer = document.getElementById("paletteFooter");
+  const empty = document.getElementById("paletteEmpty");
+  const countEl = document.getElementById("colorCount");
+
+  empty.style.display = "none";
+  list.classList.add("visible");
+  footer.classList.add("visible");
+
+  countEl.textContent = `${colors.length} colors`;
+  document.getElementById("pfInfo").textContent = `${colors.length} colors extracted`;
+
+  list.innerHTML = colors.map((c, i) => {
+    const hex = toHex(c[0], c[1], c[2]);
+    const name = nameColor(c[0], c[1], c[2]);
+    const rgb = `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+    const light = (c[0]*0.299 + c[1]*0.587 + c[2]*0.114) > 180;
+    return `
+      <div class="palette-item" style="animation: fadeIn 0.3s ease ${i*0.06}s both">
+        <div class="pi-swatch" style="background:${hex}"></div>
+        <div class="pi-info">
+          <div class="pi-hex">${hex}</div>
+          <div class="pi-name">${name}</div>
+          <div class="pi-rgb">${rgb}</div>
+        </div>
+        <button class="pi-copy" onclick="copyHex('${hex}', this)" title="Copy hex">copy</button>
+      </div>
+    `;
+  }).join("");
+}
+
+function copyHex(hex, btn) {
+  navigator.clipboard.writeText(hex).then(() => {
+    const orig = btn.textContent;
+    btn.textContent = "✓";
+    btn.classList.add("copied");
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove("copied"); }, 1800);
+  });
+}
+
+function copyAllHex() {
+  const hexes = extractedColors.map(c => toHex(c[0],c[1],c[2])).join(", ");
+  navigator.clipboard.writeText(hexes).then(() => showToast("All hex codes copied"));
+}
+
+function copyCSS() {
+  const vars = extractedColors.map((c, i) =>
+    `  --color-${i+1}: ${toHex(c[0],c[1],c[2])};`
+  ).join("\n");
+  const css = `:root {\n${vars}\n}`;
+  navigator.clipboard.writeText(css).then(() => showToast("CSS variables copied"));
+}
+
+function resetImage() {
+  document.getElementById("imagePreview").style.display = "none";
+  document.getElementById("dropContent").style.display = "";
+  dropZone.classList.remove("has-image");
+  document.getElementById("changeBtn").style.display = "none";
+  document.getElementById("imageStrip").innerHTML = "";
+  document.getElementById("paletteList").classList.remove("visible");
+  document.getElementById("paletteFooter").classList.remove("visible");
+  document.getElementById("paletteEmpty").style.display = "";
+  document.getElementById("colorCount").textContent = "";
+  document.getElementById("fileInput").value = "";
+  extractedColors = [];
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 2200);
+}
+
+// Fade in animation for palette items
+const style = document.createElement("style");
+style.textContent = `@keyframes fadeIn { from { opacity:0; transform:translateX(8px); } to { opacity:1; transform:translateX(0); } }`;
+document.head.appendChild(style);
+</script>
+</body>
+</html>
