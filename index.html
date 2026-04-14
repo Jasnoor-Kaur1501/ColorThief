@@ -445,3 +445,61 @@ input[type="file"] { display: none; }
 
 <div class="main">
 
+  <!-- LEFT -->
+  <div class="left-panel">
+    <div class="panel-header">
+      <div class="ph-label">Image input</div>
+      <button class="ph-action" id="changeBtn" style="display:none" onclick="resetImage()">× clear image</button>
+    </div>
+
+    <div class="drop-zone" id="dropZone">
+      <div class="processing" id="processing">
+        <div class="proc-text">Extracting colors</div>
+        <div class="proc-bar"><div class="proc-fill"></div></div>
+      </div>
+
+      <div id="dropContent">
+        <div class="drop-icon">🎨</div>
+        <div class="drop-title">Drop your image here</div>
+        <div class="drop-sub">Any photo, screenshot, artwork, or moodboard.<br>Works best with colorful images.</div>
+        <button class="drop-btn" onclick="document.getElementById('fileInput').click()">Choose file</button>
+      </div>
+
+      <img class="image-preview" id="imagePreview" style="display:none" />
+    </div>
+
+    <div class="image-strip" id="imageStrip"></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-panel">
+    <div class="panel-header">
+      <div class="ph-label">Extracted palette</div>
+      <div class="ph-label" id="colorCount" style="color:var(--ink)"></div>
+    </div>
+
+    <div class="palette-empty" id="paletteEmpty">
+      <div class="pe-grid">
+        <div class="pe-cell"></div><div class="pe-cell"></div><div class="pe-cell"></div>
+        <div class="pe-cell"></div><div class="pe-cell"></div><div class="pe-cell"></div>
+      </div>
+      <div class="pe-text">upload an image to extract its palette</div>
+    </div>
+
+    <div class="palette-list" id="paletteList"></div>
+
+    <div class="palette-footer" id="paletteFooter">
+      <div class="pf-info" id="pfInfo">—</div>
+      <div class="pf-btns">
+        <button class="pf-btn" onclick="copyAllHex()">copy all hex</button>
+        <button class="pf-btn pf-btn-primary" onclick="copyCSS()">copy as CSS</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="fileInput" accept="image/*" />
+<div class="toast" id="toast"></div>
+
+<script>
+
