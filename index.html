@@ -320,3 +320,128 @@ input[type="file"] { display: none; }
 .pi-copy:hover { background: var(--bg); color: var(--ink); }
 .pi-copy.copied { color: #2a9d5c; }
 
+/* PALETTE FOOTER */
+.palette-footer {
+  border-top: 1px solid var(--border);
+  padding: 16px 24px;
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.palette-footer.visible { display: flex; }
+
+.pf-info {
+  font-size: 11px;
+  font-weight: 300;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.pf-btns { display: flex; gap: 8px; }
+
+.pf-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pf-btn:hover { background: var(--ink); color: var(--white); border-color: var(--ink); }
+
+.pf-btn-primary {
+  background: var(--ink);
+  color: var(--white);
+  border-color: var(--ink);
+}
+.pf-btn-primary:hover { opacity: 0.8; }
+
+/* TOAST */
+.toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--ink);
+  color: var(--white);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  padding: 10px 22px;
+  opacity: 0;
+  transition: all 0.25s;
+  pointer-events: none;
+  z-index: 100;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* PROCESSING */
+.processing {
+  position: absolute;
+  inset: 0;
+  background: rgba(248,248,246,0.85);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 5;
+}
+.processing.visible { display: flex; }
+
+.proc-text {
+  font-size: 12px;
+  font-weight: 300;
+  color: var(--muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.proc-bar {
+  width: 120px;
+  height: 2px;
+  background: var(--border);
+  overflow: hidden;
+}
+
+.proc-fill {
+  height: 100%;
+  background: var(--ink);
+  width: 0%;
+  animation: proc 1.2s ease-in-out infinite;
+}
+
+@keyframes proc {
+  0% { width: 0%; margin-left: 0; }
+  50% { width: 60%; }
+  100% { width: 0%; margin-left: 100%; }
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .main { grid-template-columns: 1fr; }
+  .left-panel { border-right: none; border-bottom: 1px solid var(--border); }
+  header { padding: 0 20px; }
+  .drop-zone { min-height: 260px; padding: 40px 24px; }
+  .right-panel { min-height: 400px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-dot"></div>
+    ColorThief
+  </div>
+  <div class="header-meta">extract · name · copy</div>
+</header>
+
+<div class="main">
+
